@@ -1,27 +1,21 @@
-use winit::{
-    event::{Event, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
-    window::WindowBuilder,
+mod direction_state;
+mod snake;
+
+use bevy::{
+    prelude::{App, Camera2dBundle, Commands},
+    DefaultPlugins,
 };
 
+fn setup_camera(mut commands: Commands) {
+    commands.spawn_bundle(Camera2dBundle::default());
+}
+
 fn main() {
-    env_logger::init();
-
-    let event_loop = EventLoop::new();
-    let window = WindowBuilder::new()
-        .with_title("Rust Snake")
-        .build(&event_loop)
-        .unwrap();
-
-    event_loop.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Wait;
-
-        match event {
-            Event::WindowEvent {
-                event: WindowEvent::CloseRequested,
-                window_id,
-            } if window_id == window.id() => *control_flow = ControlFlow::Exit,
-            _ => (),
-        }
-    });
+    App::new()
+        .add_startup_system(setup_camera)
+        .add_startup_system(snake::spawn)
+        .add_system(snake::direction_system)
+        .add_system(snake::position_system)
+        .add_plugins(DefaultPlugins)
+        .run();
 }
